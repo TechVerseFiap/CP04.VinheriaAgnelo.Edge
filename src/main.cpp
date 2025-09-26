@@ -2,10 +2,12 @@
 
 #include <LiquidCrystal_I2C.h>
 #include <DHT.h>
+#include <WiFi.h>
+#include <PubSubClient.h>
 
 #define COLUMNS 16
 #define LINES 2
-#define I2C_ADDRESS 0x27 
+#define I2C_ADDRESS 0x27
 
 #define DHTTYPE DHT22
 #define DHTPIN 13
