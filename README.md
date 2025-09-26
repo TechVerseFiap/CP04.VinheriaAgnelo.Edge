@@ -45,6 +45,10 @@ Os dados coletados são enviados via **MQTT** para um **IoT Agent**, processados
 
 ---
 
+## 📷 Video
+
+- Link para o video: [Youtube](https://youtu.be/4gRtrn5P-eM)
+
 ## 🛠️ Como Rodar
 
 ### 0. Simulação no Wowki
