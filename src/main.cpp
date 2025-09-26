@@ -5,6 +5,13 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
+// WiFi
+char SSID[] = "Wokwi-GUEST";
+char PASSWORD[] = "";
+
+WiFiClient espClient;
+
+// MQTT
 #define TOPIC_SUBSCRIBE "/TEF/testxxx/cmd"
 #define TOPIC_PUBLISH_0 "/TEF/testxxx/attrs"
 #define TOPIC_PUBLISH_1 "/TEF/testxxx/attrs/luminosity"
@@ -13,13 +20,6 @@
 
 #define ID_MQTT "fiware_xxx"
 
-// WiFi
-char SSID[] = "Wokwi-GUEST";
-char PASSWORD[] = "";
-
-WiFiClient espClient;
-
-// MQTT
 const char *BROKER_MQTT = "broker.emqx.io";
 const int BROKER_PORT = 1883;
 
