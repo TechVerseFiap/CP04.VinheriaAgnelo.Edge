@@ -13,12 +13,12 @@ char PASSWORD[] = "";
 WiFiClient espClient;
 
 // MQTT
-#define TOPIC_SUBSCRIBE "/TEF/testxxx/cmd"
-#define TOPIC_PUBLISH "/TEF/testxxx/attrs"
+#define TOPIC_SUBSCRIBE "/TEF/vinheria001/cmd"
+#define TOPIC_PUBLISH "/TEF/vinheria001/attrs/jsonObject"
 
-#define ID_MQTT "fiware_xxx"
+#define ID_MQTT "fiware_001"
 
-const char *BROKER_MQTT = "broker.emqx.io";
+const char *BROKER_MQTT = "localhost";
 const int BROKER_PORT = 1883;
 
 PubSubClient MQTT(espClient);
