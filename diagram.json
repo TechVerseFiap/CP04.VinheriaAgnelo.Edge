@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "author": "Lucas Bonato",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-esp32-devkit-v1", "id": "esp", "top": 100.7, "left": -206.6, "attrs": {} },
+    {
+      "type": "wokwi-lcd1602",
+      "id": "lcd1",
+      "top": 83.2,
+      "left": -42.4,
+      "attrs": { "pins": "i2c", "background": "blue", "color": "white" }
+    },
+    {
+      "type": "wokwi-dht22",
+      "id": "dht1",
+      "top": 105.9,
+      "left": -283.8,
+      "attrs": { "humidity": "48.5", "temperature": "27.6" }
+    },
+    { "type": "wokwi-photoresistor-sensor", "id": "ldr1", "top": 224, "left": -460, "attrs": {} }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "lcd1:VCC", "esp:VIN", "red", [ "h-9.6", "v-28.7", "h-163.2", "v163.2" ] ],
+    [ "lcd1:GND", "esp:GND.1", "black", [ "h-19.2", "v134.5" ] ],
+    [ "lcd1:SCL", "esp:D22", "green", [ "h0" ] ],
+    [ "lcd1:SDA", "esp:D21", "yellow", [ "h-9.6", "v29", "h-57.3" ] ],
+    [ "dht1:GND", "esp:GND.2", "black", [ "v0" ] ],
+    [ "dht1:VCC", "esp:VIN", "red", [ "v0" ] ],
+    [ "dht1:SDA", "esp:D13", "green", [ "v0" ] ],
+    [ "ldr1:VCC", "esp:VIN", "red", [ "h9.6", "v19.2" ] ],
+    [ "ldr1:GND", "esp:GND.2", "black", [ "h0" ] ],
+    [ "esp:TX0", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX0", "$serialMonitor:TX", "", [] ],
+    [ "ldr1:AO", "esp:D34", "gold", [ "h0" ] ]
+  ],
+  "dependencies": {}
+}
