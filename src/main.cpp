@@ -5,15 +5,43 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
+#define TOPIC_SUBSCRIBE "/TEF/testxxx/cmd"
+#define TOPIC_PUBLISH_0 "/TEF/testxxx/attrs"
+#define TOPIC_PUBLISH_1 "/TEF/testxxx/attrs/luminosity"
+#define TOPIC_PUBLISH_2 "/TEF/testxxx/attrs/temperature"
+#define TOPIC_PUBLISH_3 "/TEF/testxxx/attrs/humidity"
+
+#define ID_MQTT "fiware_xxx"
+
+// WiFi
+char SSID[] = "Wokwi-GUEST";
+char PASSWORD[] = "";
+
+WiFiClient espClient;
+
+// MQTT
+const char *BROKER_MQTT = "broker.emqx.io";
+const int BROKER_PORT = 1883;
+
+PubSubClient MQTT(espClient);
+
+// LCD I2C
 #define COLUMNS 16
 #define LINES 2
 #define I2C_ADDRESS 0x27
 
+LiquidCrystal_I2C lcd(I2C_ADDRESS, COLUMNS, LINES);
+
+// DHT
 #define DHTTYPE DHT22
 #define DHTPIN 13
 
+DHT dht(DHTPIN, DHTTYPE);
+
+// LDR
 #define LDR_ANALOG_PORT 34
 
+// Application
 const float LOW_LUMINOSITY = 15;
 const float MEDIUM_LUMINOSITY = 33;
 
@@ -36,10 +64,6 @@ float *temperatureHistory;
 float *humidityHistory;
 
 int historySize;
-
-DHT dht(DHTPIN, DHTTYPE);
-
-LiquidCrystal_I2C lcd(I2C_ADDRESS, COLUMNS, LINES);
 
 float avarage(float *array)
 {
@@ -124,7 +148,7 @@ void lcdPrintStatus()
 	}
 	else if (isTemperatureAvarageHigh)
 	{
-		lcdPrintStatusWithIcon("Temp. ALTA", "Temp. = ", temperatureAvarage, 1, 15);
+		lcdPrintStatusWithIcon("Temp. ALTA", "Temp. = ", temperatureAvarage, 1, 0);
 	}
 	else if (isLuminosityAvarageMedium)
 	{
@@ -137,7 +161,7 @@ void lcdPrintStatus()
 	}
 	else if (isTemperatureAvarageLow)
 	{
-		lcdPrintStatusWithIcon("Temp. BAIXA", "Temp. = ", temperatureAvarage, 1, 15);
+		lcdPrintStatusWithIcon("Temp. BAIXA", "Temp. = ", temperatureAvarage, 1, 0);
 	}
 	else if (isHumidityOk)
 	{
@@ -146,7 +170,7 @@ void lcdPrintStatus()
 	}
 	else if (isTemperatureOk)
 	{
-		lcdPrintStatusWithIcon("Temp. OK", "Temp. = ", temperatureAvarage, 1, 15);
+		lcdPrintStatusWithIcon("Temp. OK", "Temp. = ", temperatureAvarage, 1, 0);
 		changeOk = true;
 	}
 	else
@@ -189,22 +213,7 @@ float getLuminosityPercentage()
 	return luminosityPercentage;
 }
 
-float getLuxValue()
-{
-	const float GAMMA = 0.7;
-	const float RL10 = 50;
-	float voltage = analogRead(LDR_ANALOG_PORT) / 1024. * 5;
-	Serial.print(analogRead(LDR_ANALOG_PORT));
-	float resistance = 2000 * voltage / (1 - voltage / 5);
-	float lux = pow(RL10 * 1e3 * pow(10, GAMMA) / resistance, (1 / GAMMA));
-
-	Serial.print("Lux: ");
-	Serial.println(lux);
-
-	return lux;
-}
-
-long getHumidityPercentage()
+float getHumidityPercentage()
 {
 	float humidityPercentage = dht.readHumidity();
 
@@ -220,9 +229,9 @@ long getHumidityPercentage()
 	return humidityPercentage;
 }
 
-double getTemperatureCelsius()
+float getTemperatureCelsius()
 {
-	double tempCelsius = dht.readTemperature();
+	float tempCelsius = dht.readTemperature();
 
 	if (isnan(tempCelsius))
 	{
@@ -236,12 +245,78 @@ double getTemperatureCelsius()
 	return tempCelsius;
 }
 
+void mqttBegin()
+{
+	MQTT.setServer(BROKER_MQTT, BROKER_PORT);
+}
+
+void reconnectMQTT()
+{
+	while (!MQTT.connected())
+	{
+		Serial.print("Trying to connect with the MQTT Broker: ");
+		Serial.println(BROKER_MQTT);
+		if (MQTT.connect(ID_MQTT, "teste", "teste"))
+		{
+			Serial.println("Connected successfully with Broker");
+			MQTT.subscribe(TOPIC_SUBSCRIBE);
+			MQTT.publish(TOPIC_PUBLISH_0, "teste");
+		}
+		else
+		{
+			Serial.println("Failed trying to connect with Broker");
+			delay(2000);
+		}
+	}
+}
+
+void reconnectWiFi()
+{
+	if (WiFi.status() == WL_CONNECTED)
+	{
+		return;
+	}
+
+	WiFi.begin(SSID, PASSWORD);
+
+	while (WiFi.status() != WL_CONNECTED)
+	{
+		delay(100);
+		Serial.print(".");
+	}
+
+	Serial.println();
+	Serial.print("Connected with success into the net ");
+	Serial.println(SSID);
+	Serial.println("IP: ");
+	Serial.println(WiFi.localIP());
+}
+
+void verifyConnectionWiFiAndMQTT()
+{
+	reconnectWiFi();
+	if (!MQTT.connected())
+		reconnectMQTT();
+}
+
+void wifiBegin()
+{
+	delay(10);
+	Serial.println("WiFi Connection");
+	Serial.print("Connecting into the net: ");
+	Serial.println(SSID);
+	Serial.println("Wait");
+
+	reconnectWiFi();
+}
+
 void setup()
 {
 	Serial.begin(115200);
-
-	lcdInit();
-	lcdPrintText("Teste", 0, 0);
+	lcdBegin();
+	wifiBegin();
+	mqttBegin();
+	dht.begin();
 
 	historySize = (displayIntervalDuration / applicationDelay);
 
@@ -252,15 +327,14 @@ void setup()
 	if (!luminosityHistory || !temperatureHistory || !humidityHistory)
 	{
 		Serial.print("Error allocating memory.");
-		while (true)
-			;
+		while (true);
 	}
-
-	dht.begin();
 }
 
 void loop()
 {
+	verifyConnectionWiFiAndMQTT();
+
 	unsigned long currentTime = millis();
 
 	Serial.println("==================");
@@ -282,4 +356,6 @@ void loop()
 	}
 
 	delay(applicationDelay);
+
+	MQTT.loop();
 }
