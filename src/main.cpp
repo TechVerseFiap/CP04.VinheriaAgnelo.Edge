@@ -4,6 +4,7 @@
 #include <DHT.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
+#include <ArduinoJson.h>
 
 // WiFi
 char SSID[] = "Wokwi-GUEST";
@@ -13,10 +14,7 @@ WiFiClient espClient;
 
 // MQTT
 #define TOPIC_SUBSCRIBE "/TEF/testxxx/cmd"
-#define TOPIC_PUBLISH_0 "/TEF/testxxx/attrs"
-#define TOPIC_PUBLISH_1 "/TEF/testxxx/attrs/luminosity"
-#define TOPIC_PUBLISH_2 "/TEF/testxxx/attrs/temperature"
-#define TOPIC_PUBLISH_3 "/TEF/testxxx/attrs/humidity"
+#define TOPIC_PUBLISH "/TEF/testxxx/attrs"
 
 #define ID_MQTT "fiware_xxx"
 
@@ -40,6 +38,9 @@ DHT dht(DHTPIN, DHTTYPE);
 
 // LDR
 #define LDR_ANALOG_PORT 34
+
+// JSON
+JsonDocument json;
 
 // Application
 const float LOW_LUMINOSITY = 15;
@@ -115,6 +116,14 @@ void lcdPrintStatus()
 	float luminosityAvarage = avarage(luminosityHistory);
 	float humidityAvarage = avarage(humidityHistory);
 	float temperatureAvarage = avarage(temperatureHistory);
+
+	json["luminosity"] = luminosityAvarage;
+	json["humidity"] = humidityAvarage;
+	json["temperature"] = temperatureAvarage;
+
+	char payload[128];
+	size_t serializedJson = serializeJson(json, payload, sizeof(payload));
+	MQTT.publish(TOPIC_PUBLISH, payload, serializedJson);
 
 	Serial.println("*******************");
 	Serial.print("Luminosity Avarage: ");
@@ -260,7 +269,6 @@ void reconnectMQTT()
 		{
 			Serial.println("Connected successfully with Broker");
 			MQTT.subscribe(TOPIC_SUBSCRIBE);
-			MQTT.publish(TOPIC_PUBLISH_0, "teste");
 		}
 		else
 		{
