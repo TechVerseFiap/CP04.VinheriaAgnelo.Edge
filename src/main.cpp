@@ -256,7 +256,7 @@ void reconnectMQTT()
 	{
 		Serial.print("Trying to connect with the MQTT Broker: ");
 		Serial.println(BROKER_MQTT);
-		if (MQTT.connect(ID_MQTT, "teste", "teste"))
+		if (MQTT.connect(ID_MQTT))
 		{
 			Serial.println("Connected successfully with Broker");
 			MQTT.subscribe(TOPIC_SUBSCRIBE);
