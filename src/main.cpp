@@ -158,166 +158,13 @@ void lcdPrintStatus()
 	currentIndex = 0;
 }
 
-void lcdInit()
+void lcdBegin()
 {
 	lcd.init();
 	lcd.backlight();
 	lcd.clear();
 
-	byte shit[8] = {
-		B00000,
-		B10001,
-		B00000,
-		B00000,
-		B01110,
-		B10001,
-		B00000,
-	};
-
-	byte smile[8] = {
-		B00000,
-		B10001,
-		B00000,
-		B00000,
-		B10001,
-		B01110,
-		B00000,
-	};
-
-	byte serious[8] = {
-		B00000,
-		B10001,
-		B00000,
-		B00000,
-		B11111,
-		B00000,
-		B00000,
-	};
-
-	byte wow[8] = {
-		B00000,
-		B10001,
-		B00000,
-		B01110,
-		B10001,
-		B10001,
-		B01110,
-	};
-
-	byte lowLight[8] = {
-		B00100,
-		B01110,
-		B00000,
-		B00100,
-		B01110,
-		B00000,
-		B00000,
-		B00000,
-	};
-
-	byte mediumLight[8] = {
-		B00100,
-		B01110,
-		B00000,
-		B00100,
-		B01110,
-		B11111,
-		B11111,
-		B00000,
-	};
-
-	byte fullLight[8] = {
-		B00100,
-		B01110,
-		B00000,
-		B00100,
-		B01110,
-		B11111,
-		B11111,
-		B11111,
-	};
-
-	byte lowTemp[8] = {
-		B00100,
-		B00100,
-		B00100,
-		B00100,
-		B00100,
-		B00000,
-		B00100,
-		B00000};
-
-	byte mediumTemp[8] = {
-		B00100,
-		B00100,
-		B00100,
-		B00100,
-		B00100,
-		B00000,
-		B01110,
-		B00000};
-
-	byte highTemp[8] = {
-		B00100,
-		B00100,
-		B00100,
-		B00100,
-		B00100,
-		B00000,
-		B11111,
-		B00000};
-
-	byte lowHumidity[8] = {
-		B00100,
-		B00100,
-		B00000,
-		B00000,
-		B00000,
-		B00000,
-		B00100,
-		B00000};
-
-	byte mediumHumidity[8] = {
-		B00100,
-		B01110,
-		B00100,
-		B00000,
-		B00000,
-		B00000,
-		B01110,
-		B00000};
-
-	byte highHumidity[8] = {
-		B00100,
-		B01110,
-		B11111,
-		B00000,
-		B00000,
-		B00000,
-		B11111,
-		B00000};
-
-	byte celsiusOne[8] = {
-		B01000,
-		B10100,
-		B01010,
-		B00101,
-		B00100,
-		B00100,
-		B00101,
-		B00010};
-
-	byte celsiusTwo[8] = {
-		B10000,
-		B00110,
-		B01001,
-		B01000,
-		B01000,
-		B01000,
-		B01001,
-		B00110};
-
-	byte celsiusThree[8] = {
+	byte celsiusChar[8] = {
 		B10000,
 		B01110,
 		B10001,
@@ -325,27 +172,10 @@ void lcdInit()
 		B10000,
 		B10001,
 		B01110,
-		B00000};
+		B00000
+	};
 
-	lcd.createChar(0, shit);
-	lcd.createChar(1, smile);
-	lcd.createChar(3, serious);
-	lcd.createChar(4, wow);
-
-	lcd.createChar(5, lowLight);
-	lcd.createChar(6, mediumLight);
-	lcd.createChar(7, fullLight);
-
-	lcd.createChar(8, lowTemp);
-	lcd.createChar(9, mediumTemp);
-	lcd.createChar(10, highTemp);
-
-	lcd.createChar(11, lowHumidity);
-	lcd.createChar(12, mediumHumidity);
-	lcd.createChar(13, highHumidity);
-
-	lcd.createChar(14, celsiusTwo);
-	lcd.createChar(15, celsiusThree);
+	lcd.createChar(0, celsiusChar);
 }
 
 float getLuminosityPercentage()
